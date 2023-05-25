@@ -1,6 +1,7 @@
 package Principal;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import javax.swing.JOptionPane;
@@ -10,23 +11,79 @@ public class Principal {
     public static void main(String[] args) {
         try {
 
+            // Endereço e porta do socket
             Socket socket = new Socket("localhost", 4444);
-            ObjectOutputStream dadosout = new ObjectOutputStream(socket.getOutputStream());
+            System.out.println("Conectado ao servidor.");
 
-            String titulo = JOptionPane.showInputDialog(null, "Digite o título do livro: ");
-            String autor = JOptionPane.showInputDialog(null, "Digite o autor: ");
-            String editora = JOptionPane.showInputDialog(null, "Digite a editora: ");
-            int ano = Integer.parseInt(JOptionPane.showInputDialog(null, "Digite o ano de publicação: "));
-            String colecao = JOptionPane.showInputDialog(null, "Digite o coleção: ");
-            String assunto = JOptionPane.showInputDialog(null, "Digite o assunto: ");
-            String sinopse = JOptionPane.showInputDialog(null, "Digite a sinopse: ");
-            String idioma = JOptionPane.showInputDialog(null, "Digite o idioma: ");
+            // Fluxo de entrada e saída de dados
+            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
-            Livro livro = new Livro(titulo, autor, editora, ano, colecao, assunto, sinopse, idioma, true);
-            dadosout.writeObject(livro);
+            while (true) {
+                int escolha = Integer.parseInt(JOptionPane.showInputDialog(null, "1) Adicionar livro \n2) Atualizar informações de um livro \n3) Remover livro \n4) Consultar livro \n5) Sair"));
+                out.writeInt(escolha); // Envia o processo escolhido para o servidor
+                out.flush();
 
-        } catch (IOException e) {
-            e.printStackTrace();
+                switch (escolha) {
+                    case 1 -> {
+                        // Adicionar
+                        Livro livro = new Livro();
+                        livro.adicionar();
+                        System.out.println("Livro '" + livro.getTitulo() + "' com ID " + livro.getId() + " foi adicionado.");
+
+                        // Envia o livro para o servidor
+                        out.writeObject(livro);
+                        out.flush();
+                    }
+                    case 2 -> {
+                        // Atualizar
+                        int id = Integer.parseInt(JOptionPane.showInputDialog(null, "Informe o ID do livro a ser atualizado: "));
+
+                        // Escreve as novas informações do livro
+                        Livro livroAtualizado = new Livro();
+                        livroAtualizado.atualizar(id);
+
+                        // Envia as informações atualizadas para o servidor
+                        out.writeObject(livroAtualizado);
+                        out.flush();
+
+                    }
+
+                    case 3 -> {
+                        // Remover
+                        int id = Integer.parseInt(JOptionPane.showInputDialog(null, "Informe o ID do livro a ser deletado: "));
+                    }
+
+                    case 4 -> {
+                        // Consultar
+                        int id = Integer.parseInt(JOptionPane.showInputDialog(null, "Informe o ID do livro a ser consultado: "));
+
+                        // Envia o ID para o servidor
+                        out.writeInt(id);
+                        out.flush();
+
+                        // Recebe o livro pedido ao servidor
+                        Livro livroConsultado = (Livro) in.readObject();
+                        if (livroConsultado != null) {
+                            JOptionPane.showMessageDialog(null, "Livro consultado: " + livroConsultado.consultarInfo(id));
+
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Não existe livro com ID " + id + ".");
+                        }
+                    }
+
+                    case 5 -> {
+                        // Sair
+                    }
+
+                    default ->
+                        System.out.println("Entrada inválida.");
+                }
+
+            }
+
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Exceção: " + e.getMessage());
         }
     }
 }
