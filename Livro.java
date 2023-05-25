@@ -22,5 +22,23 @@ class Livro {
 
     public String getEditora() {
         return editora;
+    } 
+    @Override
+    public String toString() {
+        return "Título: " + titulo + "\nAutor: " + autor + "\nEditora: " + editora;
     }
+
+    public void setTitulo(String titulo) {
+    this.titulo = titulo;
+}
+
+
+    public void setAutor(String autor) {
+    this.autor = autor;
+}
+
+
+    public void setEditora(String editora) {
+    this.editora = editora;
+}
 }
