@@ -15,6 +15,7 @@ public class AcervoDeLivrosUI {
     private JFrame editarFrame;
     private AcervoDeLivros acervo;
     private DefaultTableModel tableModel;
+    private JButton btnEditarLivro;
 
     public AcervoDeLivrosUI() {
         menuFrame = new JFrame("Menu");
@@ -23,6 +24,7 @@ public class AcervoDeLivrosUI {
         editarFrame = new JFrame("Editar Livro");
         acervo = new AcervoDeLivros();
         tableModel = new DefaultTableModel(new Object[]{"Título", "Autor", "Editora"}, 0);
+        btnEditarLivro = new JButton("Editar");
     }
 
     public void exibir() {
@@ -57,7 +59,7 @@ public class AcervoDeLivrosUI {
         btnEditar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                exibirFormularioEditar();
+                exibirTabelaEditar();
             }
         });
         menuFrame.add(btnEditar);
@@ -122,61 +124,101 @@ public class AcervoDeLivrosUI {
         resultadoFrame.setVisible(true);
     }
 
-    private void exibirFormularioEditar() {
-        JPanel panel = new JPanel(new GridLayout(4, 2));
+    private void exibirTabelaEditar() {
+        ArrayList<Livro> livros = acervo.getLivros();
 
-        JLabel lblTitulo = new JLabel("Título: ");
-        JTextField txtTitulo = new JTextField();
-        panel.add(lblTitulo);
-        panel.add(txtTitulo);
+        tableModel.setRowCount(0);
+        for (Livro livro : livros) {
+            Object[] row = {livro.getTitulo(), livro.getAutor(), livro.getEditora()};
+            tableModel.addRow(row);
+        }
 
-        JLabel lblNovoTitulo = new JLabel("Novo Título: ");
-        JTextField txtNovoTitulo = new JTextField();
-        panel.add(lblNovoTitulo);
-        panel.add(txtNovoTitulo);
+        JTable table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
 
-        JLabel lblNovoAutor = new JLabel("Novo Autor: ");
-        JTextField txtNovoAutor = new JTextField();
-        panel.add(lblNovoAutor);
-        panel.add(txtNovoAutor);
+        editarFrame.getContentPane().removeAll();
+        editarFrame.getContentPane().add(scrollPane, BorderLayout.CENTER);
 
-        JLabel lblNovaEditora = new JLabel("Nova Editora: ");
-        JTextField txtNovaEditora = new JTextField();
-        panel.add(lblNovaEditora);
-        panel.add(txtNovaEditora);
+        // Adicionar botão "Editar" na tabela
+        JPanel panel = new JPanel();
+        panel.add(btnEditarLivro);
+        editarFrame.getContentPane().add(panel, BorderLayout.SOUTH);
 
-        JButton btnEditar = new JButton("Editar");
-        btnEditar.addActionListener(new ActionListener() {
+        btnEditarLivro.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String titulo = txtTitulo.getText();
-                String novoTitulo = txtNovoTitulo.getText();
-                String novoAutor = txtNovoAutor.getText();
-                String novaEditora = txtNovaEditora.getText();
-
-                boolean livroEditado = acervo.editarLivro(titulo, novoTitulo, novoAutor, novaEditora);
-
-                if (livroEditado) {
-                    JOptionPane.showMessageDialog(null, "Livro editado com sucesso.");
+                int selectedRow = table.getSelectedRow();
+                if (selectedRow != -1) {
+                    String titulo = (String) table.getValueAt(selectedRow, 0);
+                    exibirFormularioEditar(titulo);
                 } else {
-                    JOptionPane.showMessageDialog(null, "Livro não encontrado.");
+                    JOptionPane.showMessageDialog(null, "Selecione um livro para editar.");
                 }
-
-                txtTitulo.setText("");
-                txtNovoTitulo.setText("");
-                txtNovoAutor.setText("");
-                txtNovaEditora.setText("");
             }
         });
 
-        panel.add(btnEditar);
-
-        editarFrame.getContentPane().removeAll();
-        editarFrame.getContentPane().add(panel, BorderLayout.CENTER);
-        editarFrame.setSize(300, 200);
+        editarFrame.setSize(500, 300);
         editarFrame.setLocationRelativeTo(null);
         editarFrame.setVisible(true);
     }
+
+    private void exibirFormularioEditar(String titulo) {
+    JPanel panel = new JPanel();
+    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+    JLabel lblTitulo = new JLabel("Título: ");
+    JTextField txtTitulo = new JTextField(titulo);
+    txtTitulo.setEditable(false);
+    panel.add(lblTitulo);
+    panel.add(txtTitulo);
+
+    JLabel lblNovoTitulo = new JLabel("Novo Título: ");
+    JTextField txtNovoTitulo = new JTextField();
+    panel.add(lblNovoTitulo);
+    panel.add(txtNovoTitulo);
+
+    JLabel lblNovoAutor = new JLabel("Novo Autor: ");
+    JTextField txtNovoAutor = new JTextField();
+    panel.add(lblNovoAutor);
+    panel.add(txtNovoAutor);
+
+    JLabel lblNovaEditora = new JLabel("Nova Editora: ");
+    JTextField txtNovaEditora = new JTextField();
+    panel.add(lblNovaEditora);
+    panel.add(txtNovaEditora);
+
+    JButton btnEditar = new JButton("Editar");
+    btnEditar.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String novoTitulo = txtNovoTitulo.getText();
+            String novoAutor = txtNovoAutor.getText();
+            String novaEditora = txtNovaEditora.getText();
+
+            boolean livroEditado = acervo.editarLivro(titulo, novoTitulo, novoAutor, novaEditora);
+
+            if (livroEditado) {
+                JOptionPane.showMessageDialog(null, "Livro editado com sucesso.");
+                exibirTabelaEditar(); // Atualiza a tabela após a edição
+            } else {
+                JOptionPane.showMessageDialog(null, "Livro não encontrado.");
+            }
+
+            txtNovoTitulo.setText("");
+            txtNovoAutor.setText("");
+            txtNovaEditora.setText("");
+        }
+    });
+
+    panel.add(btnEditar);
+
+    editarFrame.getContentPane().removeAll();
+    editarFrame.getContentPane().add(panel, BorderLayout.CENTER);
+    editarFrame.setSize(300, 200);
+    editarFrame.setLocationRelativeTo(null);
+    editarFrame.setVisible(true);
+}
+
 
     private void exibirResultado(String mensagem) {
         JLabel label = new JLabel(mensagem);
@@ -211,41 +253,5 @@ public class AcervoDeLivrosUI {
     public static void main(String[] args) {
         AcervoDeLivrosUI acervoUI = new AcervoDeLivrosUI();
         acervoUI.exibir();
-    }
-}
-
-class AcervoDeLivros {
-    private ArrayList<Livro> livros;
-
-    public AcervoDeLivros() {
-        livros = new ArrayList<>();
-    }
-
-    public void adicionarLivro(Livro livro) {
-        livros.add(livro);
-    }
-
-    public void removerLivro(int indice) {
-        if (indice >= 0 && indice < livros.size()) {
-            livros.remove(indice);
-        } else {
-            System.out.println("Índice inválido.");
-        }
-    }
-
-    public boolean editarLivro(String titulo, String novoTitulo, String novoAutor, String novaEditora) {
-        for (Livro livro : livros) {
-            if (livro.getTitulo().equals(titulo)) {
-                livro.setTitulo(novoTitulo);
-                livro.setAutor(novoAutor);
-                livro.setEditora(novaEditora);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public ArrayList<Livro> getLivros() {
-        return livros;
     }
 }
