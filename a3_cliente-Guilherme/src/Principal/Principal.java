@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import javax.swing.text.MaskFormatter;
 
 public class Principal extends JFrame {
 
@@ -91,7 +90,7 @@ public class Principal extends JFrame {
     private void connectToServer() {
         try {
             // Endereço e porta do socket
-            socket = new Socket("localhost", 4444);
+            socket = new Socket("10.150.14.71", 4444);
             System.out.println("Conectado ao servidor.");
 
             // Fluxo de entrada e saída de dados
@@ -140,7 +139,6 @@ public class Principal extends JFrame {
 
                 // Envia o livro atualizado para o servidor
                 out.writeObject(livroAtualizado);
-                out.flush();
 
                 JOptionPane.showMessageDialog(null, "Livro com ID " + id + " atualizado.");
 
@@ -158,7 +156,7 @@ public class Principal extends JFrame {
             int id = Integer.parseInt(JOptionPane.showInputDialog("Digite o ID do livro a ser removido:"));
 
             // Envia o ID para o servidor
-            out.writeInt(4); // Código para remover livro
+            out.writeInt(3); // Código para remover livro
             out.writeInt(id);
             out.flush();
 
@@ -181,7 +179,7 @@ public class Principal extends JFrame {
             int id = Integer.parseInt(JOptionPane.showInputDialog("Digite o ID do livro a ser consultado:"));
 
             // Envia o ID para o servidor
-            out.writeInt(3); // Código para consultar livro
+            out.writeInt(4); // Código para consultar livro
             out.writeInt(id);
             out.flush();
 
@@ -205,7 +203,6 @@ public class Principal extends JFrame {
         try {
             // Envia código de saída para o servidor
             out.writeInt(5); // Código para sair
-            out.flush();
 
             // Fecha a conexão
             socket.close();
