@@ -89,11 +89,6 @@ public class ClienteGUI extends JFrame {
 
         // Conecta ao servidor e exibe a janela principal
         comunicarComServer();
-        mostrarJanelaPrincipal();
-    }
-
-    // Método para exibir a janela principal
-    private void mostrarJanelaPrincipal() {
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
@@ -132,18 +127,20 @@ public class ClienteGUI extends JFrame {
             // Envia o livro para o servidor
             out.writeInt(1); // Código para adicionar livro
             out.writeObject(livro);
+            out.writeBoolean(livro.isDisponivel()); // Envia o status de disponibilidade do livro
             out.flush();
 
             JOptionPane.showMessageDialog(null, "Livro '" + livro.getTitulo() + "' com ID " + livro.getId() + " foi adicionado.");
 
         } catch (IOException e) {
-            System.out.println("Exceção ao enviar livro: " + e.toString());
+            System.out.println("Exceção ao enviar livro: " + e.getMessage());
         }
     }
 
     private void removerLivro() {
-        int id = Integer.parseInt(JOptionPane.showInputDialog("Digite o ID do livro a ser removido:"));
         try {
+            int id = Integer.parseInt(JOptionPane.showInputDialog("Digite o ID do livro a ser removido:"));
+
             // Envia o ID para o servidor
             out.writeInt(3); // Código para remover livro
             out.writeInt(id);
@@ -159,13 +156,13 @@ public class ClienteGUI extends JFrame {
             }
 
         } catch (IOException e) {
-            System.out.println("Exceção ao remover livro: " + e.toString());
+            System.out.println("Exceção ao remover livro: " + e.getMessage());
         }
     }
 
     private void consultarLivro() {
-        int id = Integer.parseInt(JOptionPane.showInputDialog("Digite o ID do livro a ser consultado:"));
         try {
+            int id = Integer.parseInt(JOptionPane.showInputDialog("Digite o ID do livro a ser consultado:"));
 
             // Envia o ID para o servidor
             out.writeInt(4); // Código para consultar livro
