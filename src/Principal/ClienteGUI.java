@@ -120,20 +120,24 @@ public class ClienteGUI extends JFrame {
 
     private void adicionarLivro() {
         try {
-            // Cria um novo livro com base nos dados informados
-            Livro livro = new Livro();
-            livro.adicionar();
+            int id = Integer.parseInt(JOptionPane.showInputDialog("Digite o ID do livro a ser removido:"));
 
-            // Envia o livro para o servidor
-            out.writeInt(1); // Código para adicionar livro
-            out.writeObject(livro);
-            out.writeBoolean(livro.isDisponivel()); // Envia o status de disponibilidade do livro
+            // Envia o ID para o servidor
+            out.writeInt(2); // Código para remover livro
+            out.writeInt(id);
             out.flush();
 
-            JOptionPane.showMessageDialog(null, "Livro '" + livro.getTitulo() + "' com ID " + livro.getId() + " foi adicionado.");
+            // Recebe a confirmação de remoção do servidor
+            boolean removido = in.readBoolean();
+
+            if (removido) {
+                JOptionPane.showMessageDialog(null, "Livro removido com sucesso.");
+            } else {
+                JOptionPane.showMessageDialog(null, "Livro não encontrado.");
+            }
 
         } catch (IOException e) {
-            System.out.println("Exceção ao enviar livro: " + e.getMessage());
+            System.out.println("Exceção ao remover livro: " + e.getMessage());
         }
     }
 
@@ -142,7 +146,7 @@ public class ClienteGUI extends JFrame {
             int id = Integer.parseInt(JOptionPane.showInputDialog("Digite o ID do livro a ser removido:"));
 
             // Envia o ID para o servidor
-            out.writeInt(3); // Código para remover livro
+            out.writeInt(2); // Código para remover livro
             out.writeInt(id);
             out.flush();
 
@@ -165,7 +169,7 @@ public class ClienteGUI extends JFrame {
             int id = Integer.parseInt(JOptionPane.showInputDialog("Digite o ID do livro a ser consultado:"));
 
             // Envia o ID para o servidor
-            out.writeInt(4); // Código para consultar livro
+            out.writeInt(3); // Código para consultar livro
             out.writeInt(id);
             out.flush();
 

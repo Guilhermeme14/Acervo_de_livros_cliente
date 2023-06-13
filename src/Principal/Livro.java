@@ -1,6 +1,7 @@
 package Principal;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.*;
 
@@ -234,9 +235,11 @@ public class Livro implements Serializable {
     }
 
     public static boolean remover(List<Livro> livroAcervo, int id) {
-        for (Livro livro : livroAcervo) {
+        Iterator<Livro> iterator = livroAcervo.iterator();
+        while (iterator.hasNext()) {
+            Livro livro = iterator.next();
             if (livro.getId() == id) {
-                livroAcervo.remove(livro);
+                iterator.remove();
                 return true;
             }
         }
